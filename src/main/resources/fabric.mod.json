@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "id": "clientmod",
   "version": "${version}",
-  "name": "Client Mod",
+  "name": "Blue Client",
   "description": "Zoom, custom crosshair, CPS/FPS display, coordinates, motion blur, opened with Right Shift.",
   "environment": "client",
   "entrypoints": {
-    "client": ["com.blairdash.blueclient.ClientModInit"]
+    "client": ["com.blairdash.blueclient.BlueClientInit"]
   },
   "mixins": [
     "clientmod.mixins.json"

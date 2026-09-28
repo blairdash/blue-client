@@ -1,6 +1,6 @@
 package com.blairdash.blueclient.features;
 
-import com.blairdash.blueclient.ClientModInit;
+import com.blairdash.blueclient.BlueClientInit;
 import com.blairdash.blueclient.ModConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.SimpleOption;
@@ -19,7 +19,7 @@ public class ZoomFeature {
         if (!ModConfig.zoomEnabled || client.player == null) {
             return;
         }
-        boolean zooming = ClientModInit.zoomKey.isPressed();
+        boolean zooming = BlueClientInit.zoomKey.isPressed();
         SimpleOption<Integer> fovOption = client.options.getFov();
 
         if (zooming && !wasZooming) {

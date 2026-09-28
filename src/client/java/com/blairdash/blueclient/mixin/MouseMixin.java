@@ -1,6 +1,6 @@
 package com.blairdash.blueclient.mixin;
 
-import com.blairdash.blueclient.ClientModInit;
+import com.blairdash.blueclient.BlueClientInit;
 import com.blairdash.blueclient.ModConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
@@ -23,7 +23,7 @@ public class MouseMixin {
 
     @Inject(method = "onMouseScroll", at = @At("HEAD"), cancellable = true)
     private void clientmod$scrollZoom(long window, double horizontal, double vertical, CallbackInfo ci) {
-        if (!ModConfig.zoomEnabled || ClientModInit.zoomKey == null || !ClientModInit.zoomKey.isPressed()) {
+        if (!ModConfig.zoomEnabled || BlueClientInit.zoomKey == null || !BlueClientInit.zoomKey.isPressed()) {
             return;
         }
         if (vertical == 0 || MinecraftClient.getInstance().currentScreen != null) {
