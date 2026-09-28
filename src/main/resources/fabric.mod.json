@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "clientmod",
+  "version": "${version}",
+  "name": "Client Mod",
+  "description": "Zoom, custom crosshair, CPS/FPS display, coordinates, motion blur, opened with Right Shift.",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.blairdash.blueclient.ClientModInit"]
+  },
+  "mixins": [
+    "clientmod.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "fabric-api": "*",
+    "minecraft": "~1.21.11"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "targets": [ "swap" ],
+  "passes": [
+    {
+      "name": "clientmod:motion_blur",
+      "intarget": "minecraft:main",
+      "outtarget": "swap",
+      "uniforms": [
+        { "name": "BlurStrength", "type": "float", "values": [ 0.5 ] }
+      ]
+    }
+  ]
+}
