@@ -8,6 +8,7 @@ import com.blairdash.blueclient.features.CrosshairOverlay;
 import com.blairdash.blueclient.features.Keystrokes;
 import com.blairdash.blueclient.features.MotionBlurEffect;
 import com.blairdash.blueclient.features.PotionHud;
+import com.blairdash.blueclient.net.RankService;
 import com.blairdash.blueclient.gui.BlueClientScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;

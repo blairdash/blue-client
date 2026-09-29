@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "com.example.mcclient.mixin",
+  "package": "com.blairdash.blueclient.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
     "InGameHudMixin",
