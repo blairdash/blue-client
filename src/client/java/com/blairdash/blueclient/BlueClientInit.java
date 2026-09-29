@@ -7,6 +7,7 @@ import com.blairdash.blueclient.features.CpsFpsHud;
 import com.blairdash.blueclient.features.CrosshairOverlay;
 import com.blairdash.blueclient.features.Keystrokes;
 import com.blairdash.blueclient.features.MotionBlurEffect;
+import com.blairdash.blueclient.features.ZoomFeature;
 import com.blairdash.blueclient.features.PotionHud;
 import com.blairdash.blueclient.net.RankService;
 import com.blairdash.blueclient.gui.BlueClientScreen;
@@ -52,6 +53,7 @@ public class BlueClientInit implements ClientModInitializer {
             }
             CpsFpsHud.tick(client);
             CheatWatch.tick(client);
+            ZoomFeature.tick(client);
         });
 
         HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
