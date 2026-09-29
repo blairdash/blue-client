@@ -32,6 +32,7 @@ public class BlueClientInit implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         CrosshairConfigStorage.load();
+        RankService.start();
 
         openMenuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.clientmod.openmenu",
