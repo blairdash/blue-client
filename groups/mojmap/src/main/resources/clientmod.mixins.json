@@ -9,6 +9,7 @@
     "SelfNametagIconMixin",
     "TextDisplayIconMixin",
     "WindowTitleMixin",
+    "ClientBrandMixin",
     "TitleScreenBrandMixin",
     "ScreenThemeBackgroundMixin",
     "TitleScreenReplaceMixin",

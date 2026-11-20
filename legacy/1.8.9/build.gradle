@@ -19,7 +19,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-version = "1.4.12-1.8.9"
+version = "1.4.13-1.8.9"
 group = "com.blairdash.blueclient"
 archivesBaseName = "blueclient"
 String modid = "blueclient"
