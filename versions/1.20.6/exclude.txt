@@ -1,0 +1,5 @@
+client/java/com/blairdash/blueclient/api/BlueClientApi.java
+client/java/com/blairdash/blueclient/mixin/ClientTickEndMixin.java
+client/java/com/blairdash/blueclient/mixin/HitboxOptionsMixin.java
+client/java/com/blairdash/blueclient/features/HitboxLines.java
+client/java/com/blairdash/blueclient/mixin/mods/MobSizeMixin.java

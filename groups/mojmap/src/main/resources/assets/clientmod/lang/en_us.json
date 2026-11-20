@@ -1,0 +1,13 @@
+{
+  "key.clientmod.stopwatch_toggle": "Stopwatch: Start / Stop",
+  "key.clientmod.stopwatch_reset": "Stopwatch: Reset",
+  "key.clientmod.item_tracker_reset": "Item Tracker: Reset",
+  "key.clientmod.snaplook": "Snaplook (hold)",
+  "key.clientmod.quick_join": "Quick Join Blue SMP",
+  "key.clientmod.waypoint_add": "Waypoint: Add here",
+  "key.clientmod.waypoint_remove": "Waypoint: Remove nearest",
+  "key.clientmod.waypoint_menu": "Waypoint menu",
+  "key.clientmod.autotext_1": "Auto Text 1",
+  "key.clientmod.autotext_2": "Auto Text 2",
+  "key.clientmod.autotext_3": "Auto Text 3"
+}

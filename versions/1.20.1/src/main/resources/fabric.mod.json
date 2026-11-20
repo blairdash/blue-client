@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "blueclient",
+  "version": "${version}",
+  "name": "Blue Client",
+  "description": "Zoom, custom crosshair, CPS/FPS display, coordinates, motion blur, opened with Right Shift.",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.blairdash.blueclient.BlueClientInit"]
+  },
+  "mixins": [
+    "clientmod.mixins.json",
+    "clientmod.mods.mixins.json"
+  ],
+  "suggests": {
+    "quilted_fabric_api": "*"
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "fabric-api": "*",
+    "minecraft": "1.20.1"
+  }
+}

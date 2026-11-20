@@ -1,0 +1,107 @@
+plugins {
+	id 'net.fabricmc.fabric-loom-remap' version "1.18-SNAPSHOT"
+	id 'maven-publish'
+}
+
+def mc = providers.gradleProperty("mc").getOrElse("1.21.11")
+def vp = new Properties()
+file("versions/${mc}/version.properties").withInputStream { vp.load(it) }
+vp.each { k, v -> if (!(k in ["version", "group"])) project.ext.set(k.toString(), v.toString()) }
+project.version = vp.getProperty("version")
+project.group = vp.getProperty("group")
+// each version builds into its own folder, so switching never clobbers another jar
+layout.buildDirectory = file("build/${mc}")
+
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		"blueclient" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+}
+
+// ---- source layering: groups/<group>/src (shared) + versions/<mc>/src (overrides) -> build/<mc>/merged-src
+def srcGroup = mc.startsWith("26") ? "mojmap" : "yarn"
+def excludeFile = file("versions/${mc}/exclude.txt")
+def excludedPaths = excludeFile.exists() ? excludeFile.readLines().findAll { it.trim() } : []
+def mergedSrc = layout.buildDirectory.dir("merged-src").get().asFile
+tasks.register("mergeSources", Sync) {
+	def overridden = fileTree("versions/${mc}/src").files.collect { it.absolutePath.substring(file("versions/${mc}/src").absolutePath.length() + 1).replace("\\", "/") }
+	from("groups/${srcGroup}/src") { (excludedPaths + overridden).each { exclude it } }
+	from("versions/${mc}/src")
+	into mergedSrc
+	inputs.dir("shared-patches")
+	if (file("versions/${mc}/replace.txt").exists()) inputs.file("versions/${mc}/replace.txt")
+	// text patches for small API differences: lines of  <path under merged-src> TAB <old text> TAB <new text>
+	// (shared-patches/<line>.txt for a whole release line, then versions/<mc>/replace.txt)
+	doLast {
+		def rules = []
+		def shared = mc.startsWith("1.20") ? file("shared-patches/1.20.txt") : null
+		// 1.20.1 / 1.20.4 predate item data components (1.20.5)
+		def nbtEra = (mc == "1.20.1" || mc == "1.20.4") ? file("shared-patches/1.20-nbt.txt") : null
+		[shared, nbtEra, file("versions/${mc}/replace.txt")].each { rf ->
+			if (rf != null && rf.exists()) rf.readLines("UTF-8").findAll { it.trim() && !it.startsWith("#") }.each { rules << it }
+		}
+		rules.each { line ->
+			def p = line.split("\t", -1)
+			if (p.length != 3) throw new GradleException("bad patch rule: " + line)
+			def f = new File(mergedSrc, p[0])
+			if (!f.exists()) throw new GradleException("patch target missing: " + p[0])
+			def s = f.getText("UTF-8")
+			if (!s.contains(p[1])) throw new GradleException("patch did not match in " + p[0] + ": " + p[1])
+			f.setText(s.replace(p[1], p[2]), "UTF-8")
+		}
+	}
+}
+sourceSets {
+	main {
+		java.srcDirs = [new File(mergedSrc, "main/java")]
+		resources.srcDirs = [new File(mergedSrc, "main/resources")]
+	}
+	client {
+		java.srcDirs = [new File(mergedSrc, "client/java")]
+		resources.srcDirs = [new File(mergedSrc, "client/resources")]
+	}
+}
+tasks.matching { it.name != "mergeSources" && (it instanceof JavaCompile || it instanceof ProcessResources || it instanceof Jar || it.name == "validateAccessWidener") }.configureEach { dependsOn "mergeSources" }
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.5.4")))
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = (project.hasProperty("java_release") ? project.property("java_release") : "21") as int
+}
+
+java {
+	withSourcesJar()
+	def jr = (project.hasProperty("java_release") ? project.property("java_release") : "21") as int
+	sourceCompatibility = JavaVersion.toVersion(jr)
+	targetCompatibility = JavaVersion.toVersion(jr)
+}
+
+jar {
+	def projectName = project.name
+	inputs.property "projectName", projectName
+
+	from("LICENSE") {
+		rename { "${it}_$projectName"}
+	}
+}

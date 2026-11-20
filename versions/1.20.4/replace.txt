@@ -1,0 +1,5 @@
+# 1.20.4
+client/java/com/blairdash/blueclient/gui/BlueTitleScreen.java	false, null));	false));
+client/java/com/blairdash/blueclient/mods/BlueMods.java	false, null);	false);
+client/java/com/blairdash/blueclient/mods/HudMods.java	h.getAttributeValue(EntityAttributes.JUMP_STRENGTH)	0.42
+client/java/com/blairdash/blueclient/gui/SessionSwap.java	Optional.empty(), Optional.empty());	Optional.empty(), Optional.empty(), Session.AccountType.MSA);

@@ -1,0 +1,23 @@
+{
+  "required": false,
+  "package": "com.blairdash.blueclient.mixin.mods",
+  "compatibilityLevel": "JAVA_21",
+  "injectors": {
+    "defaultRequire": 0
+  },
+  "client": [
+    "FovChangerMixin",
+    "ParticleMixin",
+    "MobSizeMixin",
+    "ItemCustomizerMixin",
+    "TeamViewMixin",
+    "NickHiderMixin",
+    "NickHiderTabMixin",
+    "NickHiderNameMixin",
+    "EntityCullMixin",
+    "HudCooldownAccessor",
+    "HudCooldownEntryAccessor",
+    "HudHungerAccessor",
+    "TooltipMarkerMixin"
+  ]
+}

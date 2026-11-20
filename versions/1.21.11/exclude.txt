@@ -1,0 +1,2 @@
+client/java/com/blairdash/blueclient/features/HitboxLines.java
+main/resources/assets/clientmod/post_effect/motion_blur.json

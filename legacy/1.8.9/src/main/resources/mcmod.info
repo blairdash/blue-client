@@ -1,0 +1,16 @@
+[
+{
+  "modid": "blueclient",
+  "name": "Blue Client",
+  "description": "Zoom, custom crosshair, CPS/FPS display, coordinates, opened with Right Shift.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/blairdash/blue-client",
+  "updateUrl": "",
+  "authorList": ["blairdash"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

@@ -1,0 +1,83 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version "1.17-SNAPSHOT"
+	id 'maven-publish'
+}
+
+def mc = providers.gradleProperty("mc").getOrElse("1.21.11")
+def vp = new Properties()
+file("versions/${mc}/version.properties").withInputStream { vp.load(it) }
+vp.each { k, v -> if (!(k in ["version", "group"])) project.ext.set(k.toString(), v.toString()) }
+project.version = vp.getProperty("version")
+project.group = vp.getProperty("group")
+// each version builds into its own folder, so switching never clobbers another jar
+layout.buildDirectory = file("build/${mc}")
+
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		"blueclient" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+}
+
+// ---- source layering: groups/<group>/src (shared) + versions/<mc>/src (overrides) -> build/<mc>/merged-src
+def srcGroup = mc.startsWith("26") ? "mojmap" : "yarn"
+def excludeFile = file("versions/${mc}/exclude.txt")
+def excludedPaths = excludeFile.exists() ? excludeFile.readLines().findAll { it.trim() } : []
+def mergedSrc = layout.buildDirectory.dir("merged-src").get().asFile
+tasks.register("mergeSources", Sync) {
+	def overridden = fileTree("versions/${mc}/src").files.collect { it.absolutePath.substring(file("versions/${mc}/src").absolutePath.length() + 1).replace("\\", "/") }
+	from("groups/${srcGroup}/src") { (excludedPaths + overridden).each { exclude it } }
+	from("versions/${mc}/src")
+	into mergedSrc
+}
+sourceSets {
+	main {
+		java.srcDirs = [new File(mergedSrc, "main/java")]
+		resources.srcDirs = [new File(mergedSrc, "main/resources")]
+	}
+	client {
+		java.srcDirs = [new File(mergedSrc, "client/java")]
+		resources.srcDirs = [new File(mergedSrc, "client/resources")]
+	}
+}
+tasks.matching { it.name != "mergeSources" && (it instanceof JavaCompile || it instanceof ProcessResources || it instanceof Jar || it.name == "validateAccessWidener") }.configureEach { dependsOn "mergeSources" }
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.5.5"))
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
+
+jar {
+	def projectName = project.name
+	inputs.property "projectName", projectName
+
+	from("LICENSE") {
+		rename { "${it}_$projectName"}
+	}
+}

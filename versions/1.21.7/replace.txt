@@ -1,0 +1,2 @@
+# 1.21.7
+client/java/com/blairdash/blueclient/gui/SessionSwap.java	Optional.empty(), Optional.empty());	Optional.empty(), Optional.empty(), Session.AccountType.MSA);

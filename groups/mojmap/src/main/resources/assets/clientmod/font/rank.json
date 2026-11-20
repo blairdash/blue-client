@@ -1,0 +1,11 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "clientmod:font/rank.png",
+      "ascent": 7,
+      "height": 8,
+      "chars": ["\ue000", "\ue001", "\ue002", "\ue003", "\ue004"]
+    }
+  ]
+}

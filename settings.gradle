@@ -9,5 +9,11 @@ pluginManagement {
 	}
 }
 
-// Should match your modid
+// Pick the Minecraft version with  -Pmc=<version>  (see the folders under versions/).
+def mcVersion = providers.gradleProperty('mc').getOrElse('1.21.11')
+if (!new File(settingsDir, "versions/${mcVersion}/version.properties").exists())
+	throw new GradleException("Unknown Minecraft version '${mcVersion}'. Available: " + new File(settingsDir, 'versions').list().sort().join(', '))
+
+// 1.21.x uses Yarn names + the remapping Loom, 26.x is unobfuscated.
+rootProject.buildFileName = mcVersion.startsWith('26') ? 'build-26.gradle' : 'build-1.21.gradle'
 rootProject.name = 'blueclient'

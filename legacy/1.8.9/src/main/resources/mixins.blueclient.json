@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.7.11",
+  "package": "com.blairdash.blueclient.mixin",
+  "refmap": "mixins.blueclient.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "LowFireMixin",
+    "CapeMixin",
+    "HideScoreboardMixin"
+  ]
+}

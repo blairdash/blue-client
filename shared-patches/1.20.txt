@@ -1,0 +1,14 @@
+# patches for the 1.20 line
+client/java/com/blairdash/blueclient/features/ArmorHud.java	ctx.drawStackOverlay(client.textRenderer, stack, iconX, rowY)	ctx.drawItemInSlot(client.textRenderer, stack, iconX, rowY)
+client/java/com/blairdash/blueclient/mods/VisualMods.java	ctx.drawStackOverlay(c.textRenderer, s, ix, iy)	ctx.drawItemInSlot(c.textRenderer, s, ix, iy)
+client/java/com/blairdash/blueclient/features/CheatWatch.java	p.isGliding()	p.isFallFlying()
+client/java/com/blairdash/blueclient/mods/BlueMods.java	p.isGliding()	p.isFallFlying()
+client/java/com/blairdash/blueclient/features/WorldTweaks.java	w.setTime(w.getTime(), t, false)	w.setTimeOfDay(t)
+client/java/com/blairdash/blueclient/mods/HudMods.java	cm.getCooldownProgress(stack, 0f)	cm.getCooldownProgress(stack.getItem(), 0f)
+client/java/com/blairdash/blueclient/mods/HudMods.java	cm.getGroup(stack)	stack.getItem()
+client/java/com/blairdash/blueclient/mods/OcclusionCull.java	w.getBlockState(pos).isOpaqueFullCube()	w.getBlockState(pos).isOpaqueFullCube(w, pos)
+client/java/com/blairdash/blueclient/mods/VisualMods.java	img.setColorArgb(x, y, argb)	img.setColor(x, y, (argb & 0xFF00FF00) | ((argb & 0xFF) << 16) | ((argb >> 16) & 0xFF))
+client/java/com/blairdash/blueclient/mods/VisualMods.java	SoundEvents.ITEM_TRIDENT_THUNDER.value()	SoundEvents.ITEM_TRIDENT_THUNDER
+client/java/com/blairdash/blueclient/mods/HudMods.java	EntityAttributes.MOVEMENT_SPEED	EntityAttributes.GENERIC_MOVEMENT_SPEED
+client/java/com/blairdash/blueclient/BlueClientInit.java	public void onInitializeClient() {	public void onInitializeClient() { if (Boolean.getBoolean("blueclient.audit")) net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.CLIENT_STARTED.register(mc -> { try { org.spongepowered.asm.mixin.MixinEnvironment.getCurrentEnvironment().audit(); } catch (Throwable t) { System.out.println("[blueclient] audit: " + t); } });
+client/java/com/blairdash/blueclient/mods/TipLines.java	ctx.drawStackOverlay(tr, s, sx, sy)	ctx.drawItemInSlot(tr, s, sx, sy)

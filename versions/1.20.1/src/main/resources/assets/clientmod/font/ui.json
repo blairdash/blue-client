@@ -1,0 +1,16 @@
+{
+  "providers": [
+    {
+      "type": "ttf",
+      "file": "clientmod:outfit-bold.ttf",
+      "size": 11.0,
+      "oversample": 1.0,
+      "shift": [0.0, 0.8],
+      "skip": ""
+    },
+    {
+      "type": "reference",
+      "id": "minecraft:default"
+    }
+  ]
+}

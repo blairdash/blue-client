@@ -1,0 +1,31 @@
+{
+  "required": false,
+  "package": "com.blairdash.blueclient.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "InGameHudMixin",
+    "SessionAccessor",
+    "SelfNametagMixin",
+    "SelfNametagIconMixin",
+    "TextDisplayIconMixin",
+    "WindowTitleMixin",
+    "TitleScreenBrandMixin",
+    "TitleScreenReplaceMixin",
+    "ScreenThemeBackgroundMixin",
+    "MouseMixin",
+    "LowFireMixin",
+    "LowShieldMixin",
+    "ZoomFovMixin",
+    "FreelookEntityMixin",
+    "FreelookCameraMixin",
+    "FullbrightMixin",
+    "NoHurtCamMixin",
+    "ChatTimestampMixin",
+    "HideScoreboardMixin",
+    "CapeMixin",
+    "HitboxOptionsMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

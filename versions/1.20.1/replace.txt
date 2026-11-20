@@ -1,0 +1,20 @@
+# 1.20.1
+client/java/com/blairdash/blueclient/mods/HudMods.java	h.getAttributeValue(EntityAttributes.JUMP_STRENGTH)	0.42
+client/java/com/blairdash/blueclient/gui/BlueTitleScreen.java	false, null));	false));
+client/java/com/blairdash/blueclient/mods/BlueMods.java	false, null);	false);
+client/java/com/blairdash/blueclient/gui/BlueTitleScreen.java	import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;	import net.minecraft.client.gui.screen.ConnectScreen;
+client/java/com/blairdash/blueclient/mods/BlueMods.java	import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;	import net.minecraft.client.gui.screen.ConnectScreen;
+client/java/com/blairdash/blueclient/gui/BlueTitleScreen.java	private java.util.function.Supplier<net.minecraft.client.util.SkinTextures> headSkin;	private java.util.function.Supplier<net.minecraft.util.Identifier> headSkin;
+client/java/com/blairdash/blueclient/gui/BlueTitleScreen.java	headSkin = () -> client.getSkinProvider().getSkinTextures(SessionSwap.profile(client.getGameProfile()));	headSkin = () -> client.getSkinProvider().loadSkin(client.getSession().getProfile());
+client/java/com/blairdash/blueclient/gui/BlueClientScreen.java	mouseScrolled(double mx, double my, double horizontal, double vertical)	mouseScrolled(double mx, double my, double vertical)
+client/java/com/blairdash/blueclient/gui/BlueClientScreen.java	super.mouseScrolled(mx, my, horizontal, vertical)	super.mouseScrolled(mx, my, vertical)
+client/java/com/blairdash/blueclient/gui/BlueModsScreen.java	mouseScrolled(double mx, double my, double h, double v)	mouseScrolled(double mx, double my, double v)
+client/java/com/blairdash/blueclient/gui/GenericOptionsScreen.java	mouseScrolled(double mx, double my, double h, double v)	mouseScrolled(double mx, double my, double v)
+client/java/com/blairdash/blueclient/gui/BlueTitleScreen.java	ServerInfo.ServerType.OTHER)	false)
+client/java/com/blairdash/blueclient/mods/BlueMods.java	ServerInfo.ServerType.OTHER)	false)
+client/java/com/blairdash/blueclient/mixin/ScreenThemeBackgroundMixin.java	DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci	DrawContext context, CallbackInfo ci
+client/java/com/blairdash/blueclient/gui/SessionSwap.java	import net.minecraft.client.session.ProfileKeys;	import net.minecraft.client.util.ProfileKeys;
+client/java/com/blairdash/blueclient/gui/SessionSwap.java	import net.minecraft.client.session.Session;	import net.minecraft.client.util.Session;
+client/java/com/blairdash/blueclient/gui/SessionSwap.java	toUuid(s.uuid), s.accessToken, Optional.empty(), Optional.empty());	s.uuid, s.accessToken, Optional.empty(), Optional.empty(), Session.AccountType.MSA);
+client/java/com/blairdash/blueclient/mixin/SessionAccessor.java	import net.minecraft.client.session.ProfileKeys;	import net.minecraft.client.util.ProfileKeys;
+client/java/com/blairdash/blueclient/mixin/SessionAccessor.java	import net.minecraft.client.session.Session;	import net.minecraft.client.util.Session;

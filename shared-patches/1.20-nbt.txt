@@ -1,0 +1,23 @@
+# 1.20.1 / 1.20.4 (NBT era)
+client/java/com/blairdash/blueclient/mods/HudMods.java	import net.minecraft.component.DataComponentTypes;	
+client/java/com/blairdash/blueclient/mods/HudMods.java	import net.minecraft.component.type.PotionContentsComponent;	
+client/java/com/blairdash/blueclient/mods/HudMods.java	PotionContentsComponent pc = s.get(DataComponentTypes.POTION_CONTENTS);	net.minecraft.potion.Potion pc = net.minecraft.potion.PotionUtil.getPotion(s);
+client/java/com/blairdash/blueclient/mods/HudMods.java	if (pc == null || pc.potion().isEmpty()) return false;	if (pc == null || pc == net.minecraft.potion.Potions.EMPTY) return false;
+client/java/com/blairdash/blueclient/mods/HudMods.java	String id = pc.potion().get().getIdAsString();	String id = net.minecraft.registry.Registries.POTION.getId(pc).toString();
+client/java/com/blairdash/blueclient/mods/HudMods.java	food.nutrition()	food.getHunger()
+client/java/com/blairdash/blueclient/mods/HudMods.java	food.saturation()	(food.getHunger() * food.getSaturationModifier() * 2f)
+client/java/com/blairdash/blueclient/mods/VisualMods.java	import net.minecraft.component.DataComponentTypes;	
+client/java/com/blairdash/blueclient/mods/VisualMods.java	import net.minecraft.component.type.ContainerComponent;	
+client/java/com/blairdash/blueclient/mods/VisualMods.java	ContainerComponent cc = stack.get(DataComponentTypes.CONTAINER);	java.util.List<ItemStack> cc = ShulkerPreview.shulkerItems(stack);
+client/java/com/blairdash/blueclient/mods/VisualMods.java	for (ItemStack s : cc.iterateNonEmpty())	for (ItemStack s : cc)
+client/java/com/blairdash/blueclient/mods/VisualMods.java	static final class ShulkerPreview extends BlueMod {	static final class ShulkerPreview extends BlueMod { static java.util.List<ItemStack> shulkerItems(ItemStack st) { java.util.List<ItemStack> out = new java.util.ArrayList<>(); net.minecraft.nbt.NbtCompound t = st.getSubNbt("BlockEntityTag"); if (t == null || !t.contains("Items", 9)) return out; net.minecraft.nbt.NbtList l = t.getList("Items", 10); for (int i = 0; i < l.size(); i++) { ItemStack s = ItemStack.fromNbt(l.getCompound(i)); if (!s.isEmpty()) out.add(s); } return out; }
+client/java/com/blairdash/blueclient/features/CheatWatch.java	p.isInCreativeMode()	p.isCreative()
+client/java/com/blairdash/blueclient/mods/BlueMods.java	p.isInCreativeMode()	p.isCreative()
+client/java/com/blairdash/blueclient/mods/HudMods.java	c.player.isInCreativeMode()	c.player.isCreative()
+client/java/com/blairdash/blueclient/mods/VisualMods.java	if (c.options.getMenuBackgroundBlurriness().getValue() != v) c.options.getMenuBackgroundBlurriness().setValue(v);	;
+client/java/com/blairdash/blueclient/mods/VisualMods.java	(stack, ctx, type, lines) ->	(stack, ctx, lines) ->
+client/java/com/blairdash/blueclient/mods/HudMods.java	(stack, ctx, type, lines) ->	(stack, ctx, lines) ->
+client/java/com/blairdash/blueclient/mods/HudMods.java	var food = stack.get(DataComponentTypes.FOOD);	var food = stack.getItem().getFoodComponent();
+client/java/com/blairdash/blueclient/mods/HudMods.java	var mainFood = c.player.getMainHandStack().get(DataComponentTypes.FOOD);	var mainFood = c.player.getMainHandStack().getItem().getFoodComponent();
+client/java/com/blairdash/blueclient/mods/HudMods.java	var offFood = c.player.getOffHandStack().get(DataComponentTypes.FOOD);	var offFood = c.player.getOffHandStack().getItem().getFoodComponent();
+client/java/com/blairdash/blueclient/mods/HudMods.java	Food.canAlwaysEat()	Food.isAlwaysEdible()
