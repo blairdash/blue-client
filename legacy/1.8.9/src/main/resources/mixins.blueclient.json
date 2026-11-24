@@ -8,6 +8,7 @@
     "LowFireMixin",
     "CapeMixin",
     "HideScoreboardMixin",
-    "ClientBrandMixin"
+    "ClientBrandMixin",
+    "TabListIconMixin"
   ]
 }

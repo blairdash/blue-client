@@ -62,6 +62,7 @@ public class BlueClientMod {
     @EventHandler
     public void init(FMLInitializationEvent event) {
         ConfigStorage.load();
+        com.blairdash.blueclient.features.CrosshairData.load();
         Display.setTitle("Blue Client 1.8.9 (v1)");
         com.blairdash.blueclient.net.RankService.start();
         com.blairdash.blueclient.LauncherUpdater.start();
