@@ -35,6 +35,6 @@ public final class NametagIcon {
         Integer color = RankService.colorFor(owner.getUUID());
         if (color == null) return original; // not a currently-online Blue Client user
         // icon must be a sibling, not the parent: children inherit the parent's font, which would turn the name into missing-glyph boxes
-        return Component.empty().append(RankIcon.text(color)).append(Component.literal(" ")).append(original);
+        return Component.empty().append(RankIcon.label(color)).append(original);
     }
 }

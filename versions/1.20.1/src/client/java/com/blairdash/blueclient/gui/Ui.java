@@ -229,7 +229,7 @@ final class Ui {
                 int end = Math.min(S - inset, col + chunk);
                 float tt = Math.min(1f, Math.max(0f, ((col + end) / 2f + row) / (2f * S)));
                 int rr = Math.round(0x12 + (0x46 - 0x12) * tt), gg = Math.round(0xBA + (0x90 - 0xBA) * tt), bb = Math.round(0xFF + (0xF0 - 0xFF) * tt);
-                c.fill(x * g + col, y * g + row, x * g + end, y * g + row + 1, 0xFF000000 | (rr << 16) | (gg << 8) | bb);
+                c.fill(x * g + col, y * g + row, x * g + end + (end < S - inset ? 1 : 0), y * g + row + (row < S - 1 ? 2 : 1), 0xFF000000 | (rr << 16) | (gg << 8) | bb);
             }
         }
         c.getMatrices().pop();

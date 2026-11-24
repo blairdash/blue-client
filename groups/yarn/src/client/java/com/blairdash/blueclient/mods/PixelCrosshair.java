@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Pixel-by-pixel custom crosshair. Two grids (normal and enemy) live in hidden settings of the
- * "crosshair_opts" holder. Storage is a fixed MAX x MAX canvas (8 pixels x 4 bits per setting); the
+ * "crosshair_opts" holder. Storage is a fixed MAX x MAX (63) canvas (8 pixels x 4 bits per setting); the
  * visible grid is an odd N x N window centered on it, so changing the grid size keeps the drawing centered.
  * 0 = empty, 1..11 = Setting.PALETTE index + 1. No Minecraft types here: callers draw the returned
  * rectangles {x1, y1, x2, y2, argb} themselves.
@@ -13,15 +13,53 @@ import java.util.List;
 public final class PixelCrosshair {
     private PixelCrosshair() { }
 
-    public static final int MAX = 31, MIN = 5;
+    public static final int MAX = 63, MIN = 5;
+    /** Lunar-style grid sizes the +/- buttons step through. */
+    public static final int[] SIZES = { 7, 15, 31, 63 };
     private static int selected = 1;
-    private static boolean editEnemy;
+    /** Which grid the editor shows: 0 Normal, 1 Friendly, 2 Enemy, 3 Elytra. */
+    private static int edit;
+    private static final String[] KEYS = { "cp", "fcp", "ecp", "lcp" };
 
-    public static boolean editingEnemy() { return editEnemy; }
-    public static void open() { editEnemy = false; }
+    public static boolean editingEnemy() { return edit == 2; }
+    public static void open() { edit = 0; }
 
     private static BlueMod holder() { return ModManager.get("crosshair_opts"); }
-    private static Setting row(boolean e, int sy, int sx) { return holder().setting((e ? "ecp" : "cp") + sy + "_" + (sx / 8)); }
+    private static final Setting[][][] ROWS = new Setting[4][MAX][(MAX + 7) / 8];
+    private static boolean migrated;
+
+    private static Setting row(int e, int sy, int sx) {
+        ensureMigrated();
+        Setting s = ROWS[e][sy][sx / 8];
+        if (s == null) s = ROWS[e][sy][sx / 8] = holder().setting(KEYS[e] + sy + "_" + (sx / 8));
+        return s;
+    }
+
+    /** Older versions stored a 31x31 canvas; the canvas is now 63x63 with the same drawing centered in it. */
+    private static void ensureMigrated() {
+        if (migrated) return;
+        migrated = true;
+        Setting flag = holder().setting("grid_v2");
+        if (flag.b) return;
+        flag.b = true;
+        for (int e = 0; e < 2; e++) {
+            String k = e == 1 ? "ecp" : "cp";
+            int[][] old = new int[31][31];
+            boolean any = false;
+            for (int y = 0; y < 31; y++) for (int x = 0; x < 31; x++) {
+                long v = (long) holder().setting(k + y + "_" + (x / 8)).n;
+                old[y][x] = (int) ((v >> ((x % 8) * 4)) & 15L);
+                any |= old[y][x] != 0;
+            }
+            if (!any) continue;
+            for (int y = 0; y < MAX; y++) for (int w = 0; w < (MAX + 7) / 8; w++) holder().setting(k + y + "_" + w).n = 0;
+            for (int y = 0; y < 31; y++) for (int x = 0; x < 31; x++) {
+                if (old[y][x] == 0) continue;
+                Setting s = holder().setting(k + (y + 16) + "_" + ((x + 16) / 8));
+                s.n = (double) (((long) s.n) | ((long) old[y][x] << (((x + 16) % 8) * 4)));
+            }
+        }
+    }
 
     /** Visible grid size (any value from MIN to MAX). */
     public static int n() {
@@ -31,19 +69,19 @@ public final class PixelCrosshair {
     }
     private static int off() { return (MAX - n()) / 2; }
 
-    private static int rawGet(boolean e, int sx, int sy) {
+    private static int rawGet(int e, int sx, int sy) {
         if (sx < 0 || sy < 0 || sx >= MAX || sy >= MAX) return 0;
         long v = (long) row(e, sy, sx).n;
         return (int) ((v >> ((sx % 8) * 4)) & 15L);
     }
 
-    public static int get(boolean e, int x, int y) { return rawGet(e, x + off(), y + off()); }
-    public static int get(int x, int y) { return get(editEnemy, x, y); }
+    public static int get(int e, int x, int y) { return rawGet(e, x + off(), y + off()); }
+    public static int get(int x, int y) { return get(edit, x, y); }
 
     public static void set(int x, int y, int val) {
         int sx = x + off(), sy = y + off();
         if (x < 0 || y < 0 || x >= n() || y >= n()) return;
-        Setting s = row(editEnemy, sy, sx);
+        Setting s = row(edit, sy, sx);
         int o = (sx % 8) * 4;
         long v = (long) s.n;
         v = (v & ~(15L << o)) | ((long) (val & 15) << o);
@@ -52,7 +90,7 @@ public final class PixelCrosshair {
 
     public static void clear() {
         for (int y = 0; y < MAX; y++) for (int sx = 0; sx < MAX; sx++) {
-            Setting s = row(editEnemy, y, sx);
+            Setting s = row(edit, y, sx);
             long v = (long) s.n;
             s.n = (double) (v & ~(15L << ((sx % 8) * 4)));
         }
@@ -61,14 +99,17 @@ public final class PixelCrosshair {
     private static int argb(int v) { return Setting.PALETTE[Math.max(1, Math.min(v, Setting.PALETTE.length)) - 1]; }
 
     /** The crosshair as filled rectangles, centered on (cx, cy). */
-    public static List<int[]> pixelRects(int cx, int cy, boolean enemy) {
+    public static List<int[]> pixelRects(int cx, int cy, boolean enemy) { return pixelRects(cx, cy, enemy ? 2 : 0, 0); }
+
+    /** {@code extraScale} grows the grid (used for the bow / attack spread). */
+    public static List<int[]> pixelRects(int cx, int cy, int profile, double extraScale) {
         List<int[]> out = new ArrayList<>();
-        double s = Math.max(0.5, Math.round(holder().setting("custom_scale").n * 2) / 2.0);
+        double s = Math.max(0.5, Math.round((holder().setting("custom_scale").n + extraScale) * 2) / 2.0);
         int n = n();
         double left = cx - n * s / 2, top = cy - n * s / 2;
         for (int y = 0; y < n; y++) {
             for (int x = 0; x < n; x++) {
-                int v = get(enemy, x, y);
+                int v = get(profile, x, y);
                 if (v == 0) continue;
                 int x1 = (int) Math.round(left + x * s), y1 = (int) Math.round(top + y * s);
                 int x2 = Math.max(x1 + 1, (int) Math.round(left + (x + 1) * s)), y2 = Math.max(y1 + 1, (int) Math.round(top + (y + 1) * s));
@@ -94,8 +135,11 @@ public final class PixelCrosshair {
     private static int palY(int h) { return gy(h) + gridSize(h) + 10; }
     public static int[] clearBtn(int w, int h) { return new int[] { w / 2 - 70, palY(h) + 22, 60, 18 }; }
     public static int[] backBtn(int w, int h) { return new int[] { w / 2 + 10, palY(h) + 22, 60, 18 }; }
-    public static int[] tabNormal(int w, int h) { return new int[] { w / 2 - 70, palY(h) + 44, 60, 16 }; }
-    public static int[] tabEnemy(int w, int h) { return new int[] { w / 2 + 10, palY(h) + 44, 60, 16 }; }
+    private static int[] tab(int w, int h, int i) { return new int[] { w / 2 - 95 + i * 48, palY(h) + 44, 46, 16 }; }
+    public static int[] tabNormal(int w, int h) { return tab(w, h, 0); }
+    public static int[] tabFriendly(int w, int h) { return tab(w, h, 1); }
+    public static int[] tabEnemy(int w, int h) { return tab(w, h, 2); }
+    public static int[] tabElytra(int w, int h) { return tab(w, h, 3); }
     public static int[] zoomMinus(int w, int h) { return new int[] { w / 2 - 70, palY(h) + 64, 60, 16 }; }
     public static int[] zoomPlus(int w, int h) { return new int[] { w / 2 + 10, palY(h) + 64, 60, 16 }; }
     public static int[] gridMinus(int w, int h) { return new int[] { w / 2 - 70, palY(h) + 84, 60, 16 }; }
@@ -133,10 +177,10 @@ public final class PixelCrosshair {
             boolean hv = in(mx, my, b[0], b[1], b[2], b[3]);
             out.add(new int[] { b[0], b[1], b[0] + b[2], b[1] + b[3], hv ? 0xFF3D8BFF : 0xFF22304A });
         }
-        int[][] tabs = { tabNormal(w, h), tabEnemy(w, h) };
-        for (int i = 0; i < 2; i++) {
+        int[][] tabs = { tabNormal(w, h), tabFriendly(w, h), tabEnemy(w, h), tabElytra(w, h) };
+        for (int i = 0; i < 4; i++) {
             int[] b = tabs[i];
-            boolean sel = (i == 1) == editEnemy;
+            boolean sel = i == edit;
             out.add(new int[] { b[0], b[1], b[0] + b[2], b[1] + b[3], sel ? 0xFF3D8BFF : (in(mx, my, b[0], b[1], b[2], b[3]) ? 0xFF2F4B7A : 0xFF22304A) });
         }
         return out;
@@ -155,16 +199,21 @@ public final class PixelCrosshair {
     }
 
     private static void resize(int delta) {
-        holder().setting("grid_size").n = Math.max(MIN, Math.min(MAX, n() + delta));
+        int cur = n(), next = cur;
+        if (delta > 0) { for (int i = SIZES.length - 1; i >= 0; i--) if (SIZES[i] > cur) next = SIZES[i]; }
+        else { for (int i = 0; i < SIZES.length; i++) if (SIZES[i] < cur) next = SIZES[i]; }
+        holder().setting("grid_size").n = Math.max(MIN, Math.min(MAX, next));
     }
 
     /** 0 = ignored, 1 = handled, 2 = BACK pressed. */
     public static int click(int w, int h, double mx, double my, int button) {
         if (button == 0) {
-            int[] c = clearBtn(w, h), b = backBtn(w, h), tn = tabNormal(w, h), te = tabEnemy(w, h);
+            int[] c = clearBtn(w, h), b = backBtn(w, h);
             int[] zm = zoomMinus(w, h), zp = zoomPlus(w, h), gm = gridMinus(w, h), gp = gridPlus(w, h);
-            if (in(mx, my, tn[0], tn[1], tn[2], tn[3])) { editEnemy = false; return 1; }
-            if (in(mx, my, te[0], te[1], te[2], te[3])) { editEnemy = true; return 1; }
+            for (int i = 0; i < 4; i++) {
+                int[] tb = tab(w, h, i);
+                if (in(mx, my, tb[0], tb[1], tb[2], tb[3])) { edit = i; return 1; }
+            }
             if (in(mx, my, zm[0], zm[1], zm[2], zm[3])) { zoom(h, -2); return 1; }
             if (in(mx, my, zp[0], zp[1], zp[2], zp[3])) { zoom(h, 2); return 1; }
             if (in(mx, my, gm[0], gm[1], gm[2], gm[3])) { resize(-1); return 1; }

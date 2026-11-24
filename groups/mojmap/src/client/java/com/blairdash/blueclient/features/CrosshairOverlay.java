@@ -7,7 +7,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 
 /**
  * Draws a simple cross-shaped crosshair whose size/color come from ModConfig.
@@ -28,65 +27,45 @@ public class CrosshairOverlay {
         });
     }
 
-    private static boolean isLookingAtEntity(Minecraft client) {
-        HitResult target = client.hitResult;
-        return target instanceof EntityHitResult;
+    private static boolean teammate(Minecraft client, net.minecraft.world.entity.Entity e) {
+        return e instanceof net.minecraft.world.entity.player.Player && client.player.isAlliedTo(e);
     }
 
-        private static void draw(GuiGraphicsExtractor ctx, Minecraft client) {
-        if (!com.blairdash.blueclient.mods.LegacyOptions.s("crosshair_opts", "show_f5").b
-                && !client.options.getCameraType().isFirstPerson()) return;
+    private static void draw(GuiGraphicsExtractor ctx, Minecraft client) {
+        var opts = com.blairdash.blueclient.mods.LegacyOptions.holder("crosshair_opts");
+        if (!opts.setting("show_f5").b && !client.options.getCameraType().isFirstPerson()) return;
+        if (client.player.isSpectator() && !opts.setting("show_spectator").b) return;
         int cx = ctx.guiWidth() / 2;
         int cy = ctx.guiHeight() / 2;
-        var opts = com.blairdash.blueclient.mods.LegacyOptions.holder("crosshair_opts");
-        boolean onEnemy = ModConfig.enemyCrosshairEnabled && isLookingAtEntity(client);
-        String p = onEnemy ? "enemy_" : "";
-        int len = (int) ((onEnemy ? opts.setting("enemy_size").n : ModConfig.crosshairSize) / 2);
-        int gap = (int) (onEnemy ? opts.setting("enemy_gap").n : ModConfig.crosshairGap);
-        int thickness = Math.max(1, (int) (onEnemy ? opts.setting("enemy_thickness").n : ModConfig.crosshairThickness));
-        int color = onEnemy ? ModConfig.enemyCrosshairColor : ModConfig.crosshairColor;
+        net.minecraft.world.entity.Entity target = client.hitResult instanceof EntityHitResult hit ? hit.getEntity() : null;
+        boolean team = target != null && teammate(client, target);
+        boolean foe = target != null && !team && (target instanceof net.minecraft.world.entity.monster.Enemy || target instanceof net.minecraft.world.entity.player.Player);
+        int profile = com.blairdash.blueclient.mods.CrosshairRenderer.pickProfile(client.player.isFallFlying(), team, foe, ModConfig.enemyCrosshairEnabled);
+        boolean bow = client.player.isUsingItem() && client.player.getUseItem().is(net.minecraft.world.item.Items.BOW);
+        double dyn = com.blairdash.blueclient.mods.CrosshairRenderer.dynamic(bow, client.player.getTicksUsingItem(), client.player.getAttackAnim(0.0f));
+        for (int[] r : com.blairdash.blueclient.mods.CrosshairRenderer.build(cx, cy, profile, dyn)) ctx.fill(r[0], r[1], r[2], r[3], r[4]);
 
-        int[][] arms = {
-                { cx - gap - len, cy - thickness / 2, cx - gap, cy - thickness / 2 + thickness },
-                { cx + gap, cy - thickness / 2, cx + gap + len, cy - thickness / 2 + thickness },
-                { cx - thickness / 2, cy - gap - len, cx - thickness / 2 + thickness, cy - gap },
-                { cx - thickness / 2, cy + gap, cx - thickness / 2 + thickness, cy + gap + len } };
-        boolean outline = opts.setting(p + "outline").b;
-        int o = Math.max(1, (int) opts.setting(p + "outline_thickness").n), oc = opts.setting(p + "outline_color").color;
-        int dot = opts.setting(p + "dot").b ? Math.max(1, (int) opts.setting(p + "dot_size").n) : 0;
-        if (onEnemy ? opts.setting("enemy_custom").b : opts.setting("custom").b) {
-            outline = false; dot = 0; arms = new int[0][];
-            for (int[] r : com.blairdash.blueclient.mods.PixelCrosshair.pixelRects(cx, cy, onEnemy)) ctx.fill(r[0], r[1], r[2], r[3], r[4]);
-        }
-        if (outline) {
-            for (int[] a : arms) ctx.fill(a[0] - o, a[1] - o, a[2] + o, a[3] + o, oc);
-            if (dot > 0) ctx.fill(cx - dot / 2 - o, cy - dot / 2 - o, cx - dot / 2 + dot + o, cy - dot / 2 + dot + o, oc);
-        }
-        for (int[] a : arms) ctx.fill(a[0], a[1], a[2], a[3], color);
-        if (dot > 0) ctx.fill(cx - dot / 2, cy - dot / 2, cx - dot / 2 + dot, cy - dot / 2 + dot, color);
-
-        if (client.player != null) {
-            float cooldown = client.player.getAttackStrengthScale(0.0f);
-            if (cooldown < 1.0f) {
-                drawAttackIndicator(ctx, cx, cy, cooldown);
-            }
+        if (client.options.attackIndicator().get() == net.minecraft.client.AttackIndicatorStatus.CROSSHAIR) {
+            drawVanillaIndicator(ctx, client, cx - 8, cy + 9);
         }
     }
-
     /**
-     * A simple stand-in for vanilla's crosshair attack indicator, since the
-     * vanilla one is drawn inside the same method InGameHudMixin cancels.
-     * Not pixel-identical to vanilla's icon, but restores the cooldown
-     * feedback: a small bar under the crosshair that fills as it resets.
+     * Vanilla's crosshair attack indicator, pixel for pixel: the cooldown bar while it charges, and the
+     * "ready" mark when a living target is in reach at full charge. Vanilla draws this inside the method
+     * InGameHudMixin cancels, so it is redrawn here. (x, y) is the top-left of the bar; vanilla uses
+     * (width / 2 - 8, height / 2 + 9). Returns whether anything was drawn.
      */
-    private static void drawAttackIndicator(GuiGraphicsExtractor ctx, int cx, int cy, float progress) {
-        int barWidth = 20;
-        int barHeight = 2;
-        int y = cy + 12;
-        int x = cx - barWidth / 2;
-
-        ctx.fill(x, y, x + barWidth, y + barHeight, 0x80000000); // dim background
-        int filled = (int) (barWidth * progress);
-        ctx.fill(x, y, x + filled, y + barHeight, 0xFFFFFF00); // yellow fill
+    public static boolean drawVanillaIndicator(GuiGraphicsExtractor ctx, Minecraft client, int x, int y) {
+        if (client.player == null) return false;
+        float f = client.player.getAttackStrengthScale(0.0f);
+        boolean ready = false;
+        if (f >= 1.0f && client.hitResult instanceof EntityHitResult hit && hit.getEntity() instanceof net.minecraft.world.entity.LivingEntity living) {
+            ready = client.player.getCurrentItemAttackStrengthDelay() > 5.0f && living.isAlive();
+        }
+        java.util.List<int[]> rects = ready ? com.blairdash.blueclient.mods.VanillaIndicator.full(x, y)
+                : f < 1.0f ? com.blairdash.blueclient.mods.VanillaIndicator.bar(x, y, f) : null;
+        if (rects == null) return false;
+        for (int[] r : rects) ctx.fill(r[0], r[1], r[2], r[3], r[4]);
+        return true;
     }
 }

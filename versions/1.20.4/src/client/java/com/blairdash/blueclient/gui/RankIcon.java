@@ -23,7 +23,41 @@ public final class RankIcon {
     public static Text text(int rgb) {
         return Text.literal(glyph(rgb)).setStyle(FONT.withColor(TextColor.fromRgb(tint(rgb))));
     }
+    public static final Identifier ATLAS = Identifier.of("clientmod", "textures/font/rank.png");
+    /** Invisible 9px spacer (one per rank); the tab list mixin draws the badge texture over it so it gets no text shadow. */
+    public static Text spacer(int rgb) {
+        return Text.literal(String.valueOf((char) (glyph(rgb).charAt(0) + 0x10))).setStyle(FONT);
+    }
+    public static int badgeIndex(net.minecraft.text.OrderedText t) {
+        int[] r = { -1 };
+        t.accept((i, s, cp) -> { if (cp >= 0xE010 && cp <= 0xE014) r[0] = cp - 0xE010; return false; });
+        return r[0];
+    }
+    public static final Identifier FONT_ID = Identifier.of("clientmod", "rank");
+    /** Lunar-style badge: called by the text drawer when it reaches a spacer glyph; emits the badge as a textured quad (no text shadow). */
+    public static void worldBadge(net.minecraft.client.render.VertexConsumerProvider vcp, net.minecraft.client.font.TextRenderer.TextLayerType type,
+                                  org.joml.Matrix4f m, float x, float y, float alpha, int light, Style style, int cp) {
+        if (cp < 0xE010 || cp > 0xE014 || !FONT_ID.equals(style.getFont())) return;
+        int idx = cp - 0xE010;
+        net.minecraft.client.render.RenderLayer layer = switch (type) {
+            case SEE_THROUGH -> net.minecraft.client.render.RenderLayer.getTextSeeThrough(ATLAS);
+            case POLYGON_OFFSET -> net.minecraft.client.render.RenderLayer.getTextPolygonOffset(ATLAS);
+            default -> net.minecraft.client.render.RenderLayer.getText(ATLAS);
+        };
+        net.minecraft.client.render.VertexConsumer vc = vcp.getBuffer(layer);
+        float v0 = idx * 64f / 320f, v1 = (idx + 1) * 64f / 320f, x1 = x + 8f, y1 = y + 8f;
+        vc.vertex(m, x, y, 0f).color(1f, 1f, 1f, alpha).texture(0f, v0).light(light).next();
+        vc.vertex(m, x, y1, 0f).color(1f, 1f, 1f, alpha).texture(0f, v1).light(light).next();
+        vc.vertex(m, x1, y1, 0f).color(1f, 1f, 1f, alpha).texture(1f, v1).light(light).next();
+        vc.vertex(m, x1, y, 0f).color(1f, 1f, 1f, alpha).texture(1f, v0).light(light).next();
+    }
+    public static void drawBadge(DrawContext c, int idx, int x, int y) {
+        c.drawTexture(ATLAS, x, y, 8, 8, 0f, idx * 64f, 64, 64, 64, 320);
+    }
     public static void draw(DrawContext c, TextRenderer tr, int x, int y, int rgb) {
         c.drawText(tr, text(rgb), x, y, 0xFF000000 | tint(rgb), false);
     }
-}
+    /** Name-label prefix: invisible spacer; TextDrawerBadgeMixin draws the badge quad (no text shadow) over it. */
+    public static Text label(int rgb) {
+        return spacer(rgb);
+    }}

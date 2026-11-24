@@ -1,5 +1,6 @@
 {
   "providers": [
+    { "type": "space", "advances": { "\ue010": 13, "\ue011": 13, "\ue012": 13, "\ue013": 13, "\ue014": 13 } },
     {
       "type": "bitmap",
       "file": "clientmod:font/rank.png",

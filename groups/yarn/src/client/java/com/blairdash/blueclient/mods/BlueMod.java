@@ -55,8 +55,17 @@ public abstract class BlueMod {
     public final int x(MinecraftClient c, int sw, int sh) { return hudX >= 0 ? hudX : defaultX(c, sw, sh); }
     public final int y(MinecraftClient c, int sw, int sh) { return hudY >= 0 ? hudY : defaultY(c, sw, sh); }
 
+    private java.util.Map<String, Setting> byId;
+    private int byIdSize = -1;
+
     public Setting setting(String id) {
-        for (Setting s : settings) if (s.id.equals(id)) return s;
-        throw new IllegalArgumentException("no setting " + id + " on " + this.id);
+        if (byId == null || byIdSize != settings.size()) {
+            byId = new java.util.HashMap<>();
+            for (Setting s : settings) byId.putIfAbsent(s.id, s);
+            byIdSize = settings.size();
+        }
+        Setting s = byId.get(id);
+        if (s == null) throw new IllegalArgumentException("no setting " + id + " on " + this.id);
+        return s;
     }
 }

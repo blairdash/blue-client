@@ -8,6 +8,7 @@
     "SelfNametagMixin",
     "SelfNametagIconMixin",
     "TextDisplayIconMixin",
+    "TabListIconMixin", "TextBadgeMixin", "TextDrawerBadgeMixin",
     "WindowTitleMixin",
     "ClientBrandMixin",
     "TitleScreenBrandMixin",

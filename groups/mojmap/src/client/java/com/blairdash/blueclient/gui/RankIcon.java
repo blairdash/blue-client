@@ -22,9 +22,25 @@ public final class RankIcon {
     public static final int WIDTH = 8;
     private static final Style FONT = Style.EMPTY.withFont(new FontDescription.Resource(Identifier.fromNamespaceAndPath("clientmod", "rank")));
     public static Component text(int rgb) {
-        return Component.literal(glyph(rgb)).setStyle(FONT.withColor(TextColor.fromRgb(tint(rgb))));
+        return Component.literal(glyph(rgb)).setStyle(FONT.withColor(TextColor.fromRgb(tint(rgb))).withShadowColor(0));
+    }
+    public static final Identifier ATLAS = Identifier.fromNamespaceAndPath("clientmod", "textures/font/rank.png");
+    /** Invisible 9px spacer (one per rank); the tab list mixin draws the badge texture over it so it gets no text shadow. */
+    public static Component spacer(int rgb) {
+        return Component.literal(String.valueOf((char) (glyph(rgb).charAt(0) + 0x10))).setStyle(FONT);
+    }
+    public static int badgeIndex(net.minecraft.util.FormattedCharSequence t) {
+        int[] r = { -1 };
+        t.accept((i, s, cp) -> { if (cp >= 0xE010 && cp <= 0xE014) r[0] = cp - 0xE010; return false; });
+        return r[0];
+    }
+    public static void drawBadge(GuiGraphicsExtractor c, int idx, int x, int y) {
+        GfxCompat.blitRegion(c, ATLAS, x, y, idx * 64f);
     }
     public static void draw(GuiGraphicsExtractor c, Font tr, int x, int y, int rgb) {
         c.text(tr, text(rgb), x, y, 0xFF000000 | tint(rgb), false);
     }
-}
+    /** Name-label prefix: badge glyph (shadow-free via Style shadow colour) plus a space. */
+    public static Component label(int rgb) {
+        return Component.empty().append(text(rgb)).append(Component.literal(" "));
+    }}

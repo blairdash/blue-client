@@ -18,6 +18,11 @@ final class GfxCompat {
         g.blit(RenderPipelines.GUI_TEXTURED, id, x, y, 0f, 0f, size, size, texW, texH, texW, texH);
     }
 
+    /** Draws one 64x64 cell of the rank atlas (64x320) scaled to 8x8. */
+    static void blitRegion(GuiGraphicsExtractor g, Identifier id, int x, int y, float v) {
+        g.blit(RenderPipelines.GUI_TEXTURED, id, x, y, 0f, v, 8, 8, 64, 64, 64, 320);
+    }
+
     /** Registers a decoded image as a texture. */
     static Tex register(Minecraft mc, Identifier id, NativeImage img, String key) {
         mc.getTextureManager().register(id, new DynamicTexture(() -> key, img));

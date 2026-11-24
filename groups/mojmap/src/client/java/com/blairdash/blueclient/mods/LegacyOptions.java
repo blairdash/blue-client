@@ -106,6 +106,7 @@ public final class LegacyOptions {
     static final class Crosshair extends Holder {
         Crosshair() {
             super("crosshair_opts", "Crosshair");
+            choice("preset", "Preset (pick to apply)", 0, CrosshairPresets.NAMES);
             bool("dot", "Center dot", false);
             num("dot_size", "Dot size", 1, 4, 0, 2);
             bool("outline", "Outline", false);
@@ -126,23 +127,54 @@ public final class LegacyOptions {
             num("enemy_size", "Enemy: size", 2, 40, 0, 8);
             num("enemy_thickness", "Enemy: thickness", 1, 8, 0, 2);
             num("enemy_gap", "Enemy: gap", 0, 12, 0, 0);
-            bool("custom", "Custom pixel crosshair (EDIT PIXELS)", false);
+            choice("shape", "Shape", 0, CrosshairRenderer.SHAPES);
+            num("scale", "Scale", 0.5, 4, 1, 1);
+            choice("enemy_shape", "Enemy: shape", 0, CrosshairRenderer.SHAPES);
+            num("enemy_scale", "Enemy: scale", 0.5, 4, 1, 1);
+            bool("friendly", "Friendly crosshair (teammate in sight)", false);
+            for (String fp : new String[] { "friendly_", "elytra_" }) {
+                String fl = fp.equals("friendly_") ? "Friendly: " : "Elytra: ";
+                int fc = fp.equals("friendly_") ? 0xFF55FF55 : 0xFFFFFFFF;
+                if (fp.equals("elytra_")) bool("elytra", "Elytra crosshair (while gliding)", false);
+                choice(fp + "shape", fl + "shape", 0, CrosshairRenderer.SHAPES);
+                num(fp + "scale", fl + "scale", 0.5, 4, 1, 1);
+                color(fp + "color", fl + "color", fc);
+                num(fp + "size", fl + "size", 2, 40, 0, 8);
+                num(fp + "thickness", fl + "thickness", 1, 8, 0, 2);
+                num(fp + "gap", fl + "gap", 0, 12, 0, 0);
+                bool(fp + "dot", fl + "center dot", false);
+                num(fp + "dot_size", fl + "dot size", 1, 4, 0, 2);
+                bool(fp + "outline", fl + "outline", false);
+                color(fp + "outline_color", fl + "outline color", 0xFF000000);
+                num(fp + "outline_thickness", fl + "outline thickness", 1, 3, 0, 1);
+                bool(fp + "custom", fl + "custom pixel crosshair (EDIT PIXELS)", false);
+            }
+            num("dyn_bow", "Spread while drawing a bow (px)", 0, 12, 0, 0);
+            num("dyn_attack", "Spread while swinging (px)", 0, 12, 0, 0);
+            bool("show_spectator", "Show in spectator mode", false);
+            choice("share_copy", "Share: copy my crosshair code", 0, "Click to copy", "Copied to clipboard!");
+            choice("share_paste", "Share: paste a code from clipboard", 0, "Click to paste", "Imported!", "Invalid code");
+            bool("grid_v2", "", false).hidden();            bool("custom", "Custom pixel crosshair (EDIT PIXELS)", false);
             num("custom_scale", "Custom pixel size (steps of 0.5)", 0.5, 8, 1, 1);
             num("editor_cell", "", 6, 40, 0, 10).hidden();
             bool("enemy_custom", "Enemy: custom pixel crosshair", false);
-            for (int py = 0; py < 31; py++) {
-                for (int pk = 0; pk < 4; pk++) {
+            for (int py = 0; py < 63; py++) {
+                for (int pk = 0; pk < 8; pk++) {
                     num("cp" + py + "_" + pk, "", 0, 4294967295.0, 0, 0).hidden();
                     num("ecp" + py + "_" + pk, "", 0, 4294967295.0, 0, 0).hidden();
+                    num("fcp" + py + "_" + pk, "", 0, 4294967295.0, 0, 0).hidden();
+                    num("lcp" + py + "_" + pk, "", 0, 4294967295.0, 0, 0).hidden();
                 }
             }
-            num("grid_size", "", 5, 31, 0, 15).hidden();            link("size", 8, () -> ModConfig.crosshairSize, v -> ModConfig.crosshairSize = (float) v);
+            num("grid_size", "", 5, 63, 0, 15).hidden();            link("size", 8, () -> ModConfig.crosshairSize, v -> ModConfig.crosshairSize = (float) v);
             link("thickness", 2, () -> ModConfig.crosshairThickness, v -> ModConfig.crosshairThickness = (float) v);
             link("gap", 0, () -> ModConfig.crosshairGap, v -> ModConfig.crosshairGap = (float) v);
             link("color", (double) 0xFFFFFFFF, () -> ModConfig.crosshairColor, v -> ModConfig.crosshairColor = (int) (long) v);
             linkBool("enemy", false, () -> ModConfig.enemyCrosshairEnabled, v -> ModConfig.enemyCrosshairEnabled = v);
             link("enemy_color", (double) 0xFFFF5555, () -> ModConfig.enemyCrosshairColor, v -> ModConfig.enemyCrosshairColor = (int) (long) v);
         }
+        @Override public void tick(Minecraft c) { CrosshairPresets.tick(); super.tick(c); }
+        @Override public void tickMenu(Minecraft c) { CrosshairPresets.tick(); super.tickMenu(c); }
     }
 
     static final class KeystrokesOpts extends Holder {

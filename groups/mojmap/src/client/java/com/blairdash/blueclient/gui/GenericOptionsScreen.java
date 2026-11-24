@@ -102,6 +102,9 @@ final class GenericOptionsScreen extends Screen {
             int[] tn = com.blairdash.blueclient.mods.PixelCrosshair.tabNormal(width, height), te = com.blairdash.blueclient.mods.PixelCrosshair.tabEnemy(width, height);
             Ui.label(c, font, "NORMAL", tn[0], tn[1], tn[2], tn[3], Ui.TEXT);
             Ui.label(c, font, "ENEMY", te[0], te[1], te[2], te[3], Ui.TEXT);
+            int[] tf = com.blairdash.blueclient.mods.PixelCrosshair.tabFriendly(width, height), tl = com.blairdash.blueclient.mods.PixelCrosshair.tabElytra(width, height);
+            Ui.label(c, font, "FRIEND", tf[0], tf[1], tf[2], tf[3], Ui.TEXT);
+            Ui.label(c, font, "ELYTRA", tl[0], tl[1], tl[2], tl[3], Ui.TEXT);
             int[] zm = com.blairdash.blueclient.mods.PixelCrosshair.zoomMinus(width, height), zp = com.blairdash.blueclient.mods.PixelCrosshair.zoomPlus(width, height);
             Ui.label(c, font, "ZOOM -", zm[0], zm[1], zm[2], zm[3], Ui.TEXT);
             Ui.label(c, font, "ZOOM +", zp[0], zp[1], zp[2], zp[3], Ui.TEXT);

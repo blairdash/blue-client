@@ -198,20 +198,16 @@ public final class VisualMods {
 
     // ---- Attack indicator --------------------------------------------------
     static final class AttackIndicator extends BlueMod {
-        private final Setting col = color("color", "Bar color", 0xFF3D8BFF);
         AttackIndicator() { super("attack_indicator", "Attack Indicator", "HUD", Items.IRON_SWORD); }
         @Override public boolean isHud() { return true; }
-        @Override public int defaultX(MinecraftClient c, int sw, int sh) { return sw / 2 - 30; }
-        @Override public int defaultY(MinecraftClient c, int sw, int sh) { return sh / 2 + 14; }
-        @Override public int hudW(MinecraftClient c) { return 60; }
+        @Override public int defaultX(MinecraftClient c, int sw, int sh) { return sw / 2 - 8; }
+        @Override public int defaultY(MinecraftClient c, int sw, int sh) { return sh / 2 + 9; }
+        @Override public int hudW(MinecraftClient c) { return 16; }
         @Override public int hudH(MinecraftClient c) { return 4; }
+        /** Draws vanilla's own attack indicator (same pixels as the game's), movable like any HUD element. */
         @Override public void render(DrawContext ctx, MinecraftClient c) {
-            float p = c.player.getAttackCooldownProgress(0f);
-            if (p >= 1f) return;
             int sw = ctx.getScaledWindowWidth(), sh = ctx.getScaledWindowHeight();
-            int x = x(c, sw, sh), y = y(c, sw, sh);
-            ctx.fill(x, y, x + 60, y + 4, 0x88000000);
-            ctx.fill(x, y, x + (int) (60 * p), y + 4, col.color);
+            com.blairdash.blueclient.features.CrosshairOverlay.drawVanillaIndicator(ctx, c, x(c, sw, sh), y(c, sw, sh));
         }
     }
 
